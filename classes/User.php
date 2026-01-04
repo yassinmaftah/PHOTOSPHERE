@@ -46,12 +46,33 @@ class User {
     public function isActive(): bool { return $this->is_active; }
     public function getCreatedAt(): DateTime { return $this->created_at; }
     public function getLastLogin(): ?DateTime { return $this->last_login; }
-
     public function setId(int $id): void { $this->id = $id; }
     public function setBio(string $bio): void { $this->bio = $bio; }
     public function setProfilePicture(string $url): void { $this->profile_picture = $url; }
     public function setActive(bool $status): void { $this->is_active = $status; }
     public function setLastLogin(DateTime $date): void { $this->last_login = $date; }
+
+    public static function getUserById($id) 
+    {
+        $db = Database::getConnection();
+        $sql = "SELECT * FROM users WHERE id = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$id]);
+        
+        $User = $stmt->fetch();
+
+        if ($User) {
+            if ($User['role'] = 'admin')
+                return new Administrator($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['is_super_admin']);
+            else if ($User['role'] = 'pro')
+                return new ProUser($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['monthly_uploads'], $User['subscription_start'] ? new DateTime($User['subscription_start']) : null, $User['subscription_end'] ? new DateTime($User['subscription_end']) : null);
+            else if ($User['role'] = 'moderator')
+                return new Moderator($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['moderator_level']);
+            else 
+                return new BasicUser($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['monthly_uploads']);
+        }
+        return null;
+    }
 
     public static function  login($email,$password)
     {
