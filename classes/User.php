@@ -135,6 +135,15 @@ class User {
         return false;
     }
 
+    public static function userExists($username, $email) {
+        $db = Database::getConnection();
+        
+        $sql = "SELECT COUNT(*) FROM users WHERE username = ? OR email = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$username, $email]);
+        
+        return $stmt->fetchColumn() > 0;
+    }
 
     public static function signup($username, $email, $password) {
         $db = Database::getConnection();
@@ -144,11 +153,11 @@ class User {
         $sql = "INSERT INTO users 
                 (username, email, password_hash, role, is_active, created_at, monthly_uploads) 
                 VALUES 
-                (:username, :email, :pass, 'basic', 1, NOW(), 0)";
+                (?, ?, ?, 'basic', 1, NOW(), 0)";
         
         $stmt = $db->prepare($sql);
 
-        $valid =  $stmt->execute([':username' => $username,':email' => $email,':pass' => $hashedPass]);
+        $valid =  $stmt->execute([$username,$email,$hashedPass]);
         if ($valid)
             return true;
         return false;
