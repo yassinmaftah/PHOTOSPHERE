@@ -8,19 +8,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    try {
-        if (User::signup($username, $email, $password)) {
-            header("Location: login.php?msg=success");
-            exit();
-        } else {
-            $message = "Something went wrong.";
-        }
-    } catch (PDOException $e) {
-        if (str_contains($e->getMessage(), 'Duplicate')) {
-            $message = "Username or Email already exists!";
-        } else {
-            $message = "Error: " . $e->getMessage();
-        }
+    if (User::userExists($username, $email)) 
+        $message = "Choice another Username or email";
+    else
+    {
+        User::signup($username, $email, $password);
+        header("Location: login.php?msg=registered");
+        exit();
     }
 }
 ?>
