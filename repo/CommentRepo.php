@@ -2,8 +2,9 @@
 
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../classes/Comment.php';
+require_once __DIR__ . '/../interfaces/Commentable.php';
 
-class CommentRepo
+class CommentRepo implements Commentable 
 {
     public function AddComment (Comment $com)
     {
@@ -19,10 +20,10 @@ class CommentRepo
     public function DeleteComment($ComId)
     {
         $db = Database::getConnection();
-        $sql = "DELETE FROM Comments WHERE id = ?";
+        $sql = "DELETE FROM comments WHERE id = ?";
         $stmt = $db->prepare($sql);
         echo $ComId;
-        if ($stmt->execute([$ComId]));
+        if ($stmt->execute([$ComId]))
             return true;
         return false;
     }
@@ -39,10 +40,9 @@ class CommentRepo
         $stmt = $db->prepare($sql);
         $stmt->execute([$postId]);
         $CommentArray = $stmt->fetchAll();
-        // int $user_id, int $post_id, string $content,
         foreach($CommentArray as $comment)
         {
-            $comment = new Comment($comment['user_id'],$comment['post_id'],$comment['content']);
+            $comment = new Comment($comment['user_id'],$comment['post_id'],$comment['content'],$comment['id'],$comment['created_at']);
             $AllComments[] = $comment;
         }
         return $AllComments;
