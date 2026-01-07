@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../config/Database.php';
-require_once 'Comment.php';
 
 class Post {
     private ?int $id;
@@ -12,10 +10,19 @@ class Post {
     private string $mime_type;
     private string $dimensions;
     private ?string $created_at;
-    private ?string $status;
+    private string $status;
 
-    public function __construct(int $user_id, string $title, string $description, string $file_path, int $file_size = 0,
-        string $mime_type = 'image/jpeg', string $dimensions = '0x0',$status = "Published",?int $id = null, ?string $created_at = null
+    public function __construct(
+        int $user_id, 
+        string $title, 
+        string $description, 
+        string $file_path, 
+        int $file_size = 0,
+        string $mime_type = 'image/jpeg', 
+        string $dimensions = '0x0',
+        string $status = "Published",
+        ?int $id = null, 
+        ?string $created_at = null
     ) {
         $this->id = $id;
         $this->user_id = $user_id;
@@ -25,30 +32,21 @@ class Post {
         $this->file_size = $file_size;
         $this->mime_type = $mime_type;
         $this->dimensions = $dimensions;
-        $this->created_at = $created_at;
         $this->status = $status;
+        $this->created_at = $created_at;
     }
+
+    public function getId(): ?int { return $this->id; }
+    public function getUserId(): int { return $this->user_id; }
+    public function getTitle(): string { return $this->title; }
+    public function getDescription(): string { return $this->description; }
+    public function getFilePath(): string { return $this->file_path; }
+    public function getFileSize(): int { return $this->file_size; }
+    public function getMimeType(): string { return $this->mime_type; }
+    public function getDimensions(): string { return $this->dimensions; }
+    public function getStatus(): string { return $this->status; }
+    public function getCreatedAt(): ?string { return $this->created_at; }
     
-
-    public static function getAllPosts() 
-    {
-        $db = Database::getConnection();
-        $sql = "SELECT posts.*, users.username, users.profile_picture 
-                FROM posts 
-                JOIN users ON posts.user_id = users.id 
-                ORDER BY posts.created_at DESC";
-        $stmt = $db->query($sql);
-        return $stmt->fetchAll();
-    }
-
-    public function getId() { return $this->id; }
-    public function getTitle() { return $this->title; }
-    public function getDescription() { return $this->description; }
-    public function getFilePath() { return $this->file_path; }
-    public function getUserId() { return $this->user_id; }
-    public function getFileSize() { return $this->file_size; }
-    public function getMimeType() { return $this->mime_type; }
-    public function getDimensions() { return $this->dimensions; }
-    public function getCreatedAt() { return $this->created_at; }
+    public function setId(int $id): void { $this->id = $id; }
 }
 ?>
