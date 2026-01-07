@@ -33,30 +33,29 @@ CREATE TABLE posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     published_at DATETIME,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE albums (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
+    user_id INT NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     cover_photo_id INT,
     is_private BOOLEAN DEFAULT FALSE,
     photo_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (cover_photo_id) REFERENCES posts(id) ON DELETE SET NULL,
-    UNIQUE(user_id, name)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (cover_photo_id) REFERENCES posts(id) ON DELETE SET NULL
 );
 
 CREATE TABLE album_posts (
     album_id INT NOT NULL,
     post_id INT NOT NULL,
     PRIMARY KEY (album_id, post_id),
-    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE SET NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL
 );
 
 CREATE TABLE tags (
@@ -70,8 +69,8 @@ CREATE TABLE post_tags (
     post_id INT NOT NULL,
     tag_id INT NOT NULL,
     PRIMARY KEY (post_id, tag_id),
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE SET NULL
 );
 
 CREATE TABLE comments (
@@ -83,17 +82,16 @@ CREATE TABLE comments (
     is_edited BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL,
+    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE SET NULL
 );
 
 CREATE TABLE likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    post_id INT NOT NULL,
+    user_id INT NOT NULL UNIQUE,
+    post_id INT NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    UNIQUE(user_id, post_id) 
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE SET NULL
 );
