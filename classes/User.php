@@ -33,7 +33,6 @@ class User {
         $this->is_active = $is_active;
         $this->last_login = $last_login;
         $this->created_at = $created_at ?? new DateTime();
-        $this->db = Database::getConnection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -62,14 +61,14 @@ class User {
         $User = $stmt->fetch();
 
         if ($User) {
-            if ($User['role'] = 'admin')
+            if ($User['role'] == 'admin')
                 return new Administrator($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['is_super_admin']);
-            else if ($User['role'] = 'pro')
+            else if ($User['role'] == 'pro')
                 return new ProUser($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['monthly_uploads'], $User['subscription_start'] ? new DateTime($User['subscription_start']) : null, $User['subscription_end'] ? new DateTime($User['subscription_end']) : null);
-            else if ($User['role'] = 'moderator')
+            else if ($User['role'] == 'moderator')
                 return new Moderator($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['moderator_level']);
             else 
-                return new BasicUser($User['username'], $User['email'], $User['password_hash'], $User['role'], $User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['monthly_uploads']);
+                return new BasicUser($User['username'], $User['email'], $User['password_hash'], $User['role'], [] ,$User['id'], $User['bio'], $User['profile_picture'], $User['is_active'], new DateTime($User['created_at']), $User['last_login'] ? new DateTime($User['last_login']) : null, $User['monthly_uploads']);
         }
         return null;
     }
@@ -123,7 +122,7 @@ class User {
             {
                 return new BasicUser
                 (
-                    $user['username'], $user['email'], $user['password_hash'], $user['role'], 
+                    $user['username'], $user['email'], $user['password_hash'], $user['role'], [] ,
                     $user['id'], $user['bio'], $user['profile_picture'], $user['is_active'], 
                     new DateTime($user['created_at']), 
                     $user['last_login'] ? new DateTime($user['last_login']) : null,
