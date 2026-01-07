@@ -1,15 +1,16 @@
 <?php
 require_once 'User.php';
 require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../repo/UseRepo.php';
+require_once __DIR__ . '/../repo/PostRepo.php';
+require_once __DIR__ . '/../repo/CommentRepo.php';
+require_once __DIR__ . '/Post.php';
 
 class BasicUser extends User {
     
     private int $monthly_uploads;
     private array $PostUser;
 
-    public function __construct(string $username, string $email, string $password, string $role,$PostUser = [], ?int $id = null, ?string $bio = null,?string $profile_picture = null,
-    bool $is_active = true,?DateTime $created_at = null,?DateTime $last_login = null,int $monthly_uploads = 0 ) 
+    public function __construct(string $username, string $email, string $password, string $role, $PostUser = [], ?int $id = null, ?string $bio = null, ?string $profile_picture = null, bool $is_active = true, ?DateTime $created_at = null, ?DateTime $last_login = null, int $monthly_uploads = 0) 
     {
         parent::__construct(
             $username, $email, $password, $role, $id, $bio, 
@@ -19,50 +20,40 @@ class BasicUser extends User {
         $this->PostUser = $PostUser;
     }
 
-    public function getAllPostUser() { return $this-> PostUser;}
+    public function getAllPostUser() { return $this->PostUser; }
     public function InsetToArrayPost(array $allpost) { $this->PostUser = $allpost; }
-
-    // public function createPost(Post $post) {
-    //     $db = Database::getConnection();
-
-    //     $sql = "INSERT INTO posts (user_id, title, description, file_path, file_size, mime_type, dimensions, created_at) 
-    //             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
-        
-    //     $stmt = $db->prepare($sql);
-
-    //     return $stmt->execute([$post->getUserId(),$post->getTitle(),
-    //         $post->getDescription(),$post->getFilePath(),$post->getFileSize(),
-    //         $post->getMimeType(),$post->getDimensions()]);
-    // }
 
     public function createPost(Post $post) 
     {
-        $UserRepo = new UserRepo();
-
-        $newpost = $UserRepo->InsertPost($post);
-        $allPost = $UserRepo->getPosts($this->getId());
+        $PostRepo = new PostRepo();
+        if ($PostRepo->InsertPost($post)) {
+            $this->GetPostUser();
+        }
+    }
+    
+    public function GetPostUser()
+    {
+        $PostRepo = new PostRepo();
+        $allPost = $PostRepo->getPosts($this->getId());
         $this->InsetToArrayPost($allPost);
+        return $this->getAllPostUser();
     }
 
     public function addComment(Comment $comm) 
     {
-        $db = Database::getConnection();
-        $sql = "INSERT INTO comments (user_id, post_id, content) VALUES (?, ?, ?)";
-        $stmt = $db->prepare($sql);
-        return $stmt->execute([$comm->getUserId(), $comm->getPostId(), $comm->getContent()]);
+        $commentRepo = new CommentRepo();
+        return $commentRepo->AddComment($comm);
     }
 
     public static function getCommentsByPostId($postId) {
-        $db = Database::getConnection();
-        $sql = "SELECT comments.*, users.username 
-                FROM comments 
-                JOIN users ON comments.user_id = users.id 
-                WHERE post_id = ? 
-                ORDER BY created_at ASC";
-        
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$postId]);
-        return $stmt->fetchAll();
+        $commentRepo = new CommentRepo();
+        return $commentRepo->getCommentsByPostId($postId);
+    }
+
+    public function deletePost($postID)
+    {
+        $PostRepo = new PostRepo();
+        return $PostRepo->deletePost($postID);
     }
 }
 ?>
